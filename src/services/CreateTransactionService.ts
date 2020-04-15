@@ -1,7 +1,5 @@
-import { uuid } from 'uuidv4';
 import TransactionsRepository from '../repositories/TransactionsRepository';
 import Transaction from '../models/Transaction';
-// import transactionRouter from '../routes/transaction.routes';
 
 interface RequestDTO {
   title: string;
@@ -16,16 +14,15 @@ class CreateTransactionService {
   }
 
   public execute({ title, value, type }: RequestDTO): Transaction {
-    const receberiddarota = uuid();
+    const limitInvalid = this.transactionsRepository.getBalance().total;
+    if (type === 'outcome' && value > limitInvalid) {
+      throw Error("You don't have enough balance");
+    }
     const transaction = this.transactionsRepository.create({
       title,
       value,
       type,
     });
-
-    if (receberiddarota) {
-      throw Error('This transaction is alread');
-    }
 
     return transaction;
   }
